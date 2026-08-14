@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Login — EduVault</title>
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" style="text-decoration:none;"><div class="brand"><span class="stamp">EV</span> EduVault</div></a>
+  <nav><a href="/student-register.html">New here? Register</a></nav>
+</div>
+
+<div class="page narrow">
+  <div class="eyebrow">Student Login</div>
+  <h2>Welcome back</h2>
+  <p class="subtitle">Scan your ID card — the barcode holds your Roll Number, so there's nothing to type and no password needed.</p>
+
+  <div id="alertBox"></div>
+
+  <button id="scanBtn" class="btn btn-accent btn-block" style="margin-bottom:1.2rem;">
+    Scan ID Card
+  </button>
+
+  <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:1.2rem; color:var(--mute); font-size:0.8rem;">
+    <div style="flex:1; border-top:1px solid var(--card-line);"></div>
+    or enter it manually
+    <div style="flex:1; border-top:1px solid var(--card-line);"></div>
+  </div>
+
+  <form id="loginForm" class="card">
+    <div class="field">
+      <label>Roll Number</label>
+      <input type="text" id="roll_no" placeholder="e.g. 22CS1042" required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Your password" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Log In</button>
+  </form>
+</div>
+
+<script src="/js/common.js"></script>
+<script src="/js/scanner.js"></script>
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const alertBox = document.getElementById("alertBox");
+  alertBox.innerHTML = "";
+  const payload = {
+    roll_no: document.getElementById("roll_no").value.trim(),
+    password: document.getElementById("password").value,
+  };
+  try {
+    const { student } = await api("/students/login", { method: "POST", body: payload });
+    saveStudent(student);
+    window.location.href = "/student-portal.html";
+  } catch (err) {
+    alertBox.innerHTML = `<div class="alert alert-error">${escapeHtml(err.message)}</div>`;
+  }
+});
+
+document.getElementById("scanBtn").addEventListener("click", async () => {
+  const alertBox = document.getElementById("alertBox");
+  alertBox.innerHTML = "";
+  let scannedId;
+  try {
+    scannedId = await openIdCardScanner();
+  } catch (e) {
+    return; // user cancelled
+  }
+  try {
+    // The barcode IS the Roll Number -- straight lookup, no password.
+    const { student } = await api("/students/card-login", { method: "POST", body: { roll_no: scannedId } });
+    saveStudent(student);
+    toast("Card recognized. Welcome back, " + student.name.split(" ")[0] + "!");
+    window.location.href = "/student-portal.html";
+  } catch (err) {
+    // This Roll Number isn't registered yet -- send to registration with it
+    // pre-filled. Once they finish registering, the same card logs in
+    // automatically every time after.
+    toast("Card not registered yet — let's set up your account.");
+    window.location.href = "/student-register.html?roll_no=" + encodeURIComponent(scannedId);
+  }
+});
+</script>
+</body>
+</html>

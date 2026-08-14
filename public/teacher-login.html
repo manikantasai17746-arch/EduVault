@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Login — EduVault</title>
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" style="text-decoration:none;"><div class="brand"><span class="stamp">EV</span> EduVault</div></a>
+  <nav><a href="/teacher-register.html">New here? Register</a></nav>
+</div>
+
+<div class="page narrow">
+  <div class="eyebrow">Faculty Login</div>
+  <h2>Welcome back</h2>
+  <p class="subtitle">Scan your ID card — the barcode holds your Employee ID, so there's nothing to type and no password needed.</p>
+
+  <div id="alertBox"></div>
+
+  <button id="scanBtn" class="btn btn-accent btn-block" style="margin-bottom:1.2rem;">
+    Scan ID Card
+  </button>
+
+  <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:1.2rem; color:var(--mute); font-size:0.8rem;">
+    <div style="flex:1; border-top:1px solid var(--card-line);"></div>
+    or enter it manually
+    <div style="flex:1; border-top:1px solid var(--card-line);"></div>
+  </div>
+
+  <form id="loginForm" class="card">
+    <div class="field">
+      <label>Employee ID</label>
+      <input type="text" id="emp_id" placeholder="e.g. EMP1042" required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Your password" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Log In</button>
+  </form>
+</div>
+
+<script src="/js/common.js"></script>
+<script src="/js/scanner.js"></script>
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const alertBox = document.getElementById("alertBox");
+  alertBox.innerHTML = "";
+  const payload = {
+    emp_id: document.getElementById("emp_id").value.trim(),
+    password: document.getElementById("password").value,
+  };
+  try {
+    const { teacher } = await api("/teachers/login", { method: "POST", body: payload });
+    saveTeacher(teacher);
+    window.location.href = "/teacher-dashboard.html";
+  } catch (err) {
+    alertBox.innerHTML = `<div class="alert alert-error">${escapeHtml(err.message)}</div>`;
+  }
+});
+
+document.getElementById("scanBtn").addEventListener("click", async () => {
+  const alertBox = document.getElementById("alertBox");
+  alertBox.innerHTML = "";
+  let scannedId;
+  try {
+    scannedId = await openIdCardScanner();
+  } catch (e) {
+    return; // user cancelled
+  }
+  try {
+    // The barcode IS the Employee ID -- straight lookup, no password.
+    const { teacher } = await api("/teachers/card-login", { method: "POST", body: { emp_id: scannedId } });
+    saveTeacher(teacher);
+    toast("Card recognized. Welcome back, " + teacher.name.split(" ")[0] + "!");
+    window.location.href = "/teacher-dashboard.html";
+  } catch (err) {
+    // This Employee ID isn't registered yet -- send to registration with it
+    // pre-filled. Once they finish registering, the same card logs in
+    // automatically every time after.
+    toast("Card not registered yet — let's set up your account.");
+    window.location.href = "/teacher-register.html?emp_id=" + encodeURIComponent(scannedId);
+  }
+});
+</script>
+</body>
+</html>

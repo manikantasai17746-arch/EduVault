@@ -1,0 +1,14 @@
+{
+  "name": "eduvault",
+  "version": "1.0.0",
+  "description": "EduVault - Centralized Teacher-Student Academic Material Sharing System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^2.0.0"
+  }
+}
