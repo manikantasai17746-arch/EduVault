@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Registration — EduVault</title>
 <link rel="stylesheet" href="/css/style.css">
-<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.4/dist/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -53,9 +53,9 @@
       <input type="email" id="email" placeholder="you@college.edu" required>
     </div>
     <div class="field">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="Create a password" required minlength="4">
-      <div class="hint">Kept as a backup login method — you won't need it once your card is set up.</div>
+      <label>Password (Optional)</label>
+      <input type="password" id="password" placeholder="Leave blank - a default password will be set" minlength="4">
+      <div class="hint">Optional — you can set your own password if you prefer. If left blank, a default password will be assigned.</div>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block">Create Account</button>
@@ -104,6 +104,7 @@ document.getElementById("regForm").addEventListener("submit", async (e) => {
     password: document.getElementById("password").value,
   };
   try {
+    // If no password entered, it will be set to default on the backend
     const { student } = await api("/students/register", { method: "POST", body: payload });
     saveStudent(student);
     toast("Account created. Welcome, " + student.name + "!");

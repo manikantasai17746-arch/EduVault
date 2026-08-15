@@ -6,10 +6,12 @@ const db = require("../db");
 router.post("/register", (req, res) => {
   try {
     const { roll_no, name, department, semester, email, password } = req.body;
-    if (!roll_no || !name || !department || !semester || !email || !password) {
-      return res.status(400).json({ error: "All fields are required." });
+    if (!roll_no || !name || !department || !semester || !email) {
+      return res.status(400).json({ error: "All fields except password are required." });
     }
-    const student = db.createStudent({ roll_no, name, department, semester, email, password });
+    // Use default password 'student123' if not provided
+    const finalPassword = password && password.trim() ? password : "student123";
+    const student = db.createStudent({ roll_no, name, department, semester, email, password: finalPassword });
     res.status(201).json({ student });
   } catch (err) {
     res.status(400).json({ error: err.message });

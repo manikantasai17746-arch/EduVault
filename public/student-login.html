@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Login — EduVault</title>
 <link rel="stylesheet" href="/css/style.css">
-<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.4/dist/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -17,7 +17,7 @@
 <div class="page narrow">
   <div class="eyebrow">Student Login</div>
   <h2>Welcome back</h2>
-  <p class="subtitle">Scan your ID card — the barcode holds your Roll Number, so there's nothing to type and no password needed.</p>
+  <p class="subtitle">Scan your ID card — the barcode holds your Roll Number, so there's nothing to type. No password needed for card scanning.</p>
 
   <div id="alertBox"></div>
 
@@ -38,7 +38,8 @@
     </div>
     <div class="field">
       <label>Password</label>
-      <input type="password" id="password" placeholder="Your password" required>
+      <input type="password" id="password" placeholder="Leave blank for default password" value="student123">
+      <div class="hint">Default password: <strong>student123</strong> — Change it after login if desired.</div>
     </div>
     <button type="submit" class="btn btn-primary btn-block">Log In</button>
   </form>

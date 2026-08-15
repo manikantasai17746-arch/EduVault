@@ -26,7 +26,7 @@ account was created.
 
 - **Backend:** Node.js + Express
 - **File uploads:** Multer
-- **Barcode scanning:** ZXing (`@zxing/library`, loaded from CDN) — reads the camera feed client-side and decodes standard 1D barcodes (Code128, EAN, UPC, Code39) and QR codes
+- **Barcode scanning:** html5-qrcode (free, Google-backed, optimized for speed) — reads the camera feed client-side and decodes 1D barcodes (Code128, EAN, UPC, Code39) and QR codes fast and reliably
 - **Database:** Lightweight JSON file store (`db.js`) — structured exactly like the relational schema in the report, so swapping in MySQL/MongoDB later only means rewriting `db.js`
 - **Frontend:** Plain HTML/CSS/JS (no build step, no framework — runs directly in the browser)
 - **Auth:** Simple password hashing (Node's built-in `crypto.scrypt`) as a fallback login method, plus password-free card login. Profile is stored in the browser's `localStorage` after login — a simplification appropriate for a college project demo, see "Future Improvements" below.
